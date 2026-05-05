@@ -38,22 +38,23 @@ constructing a term. By hovering over `_`, you will see the current logical
 context. -/
 
 def B : (α → β) → (γ → α) → γ → β :=
-  sorry
+  fun f g c ↦ f (g c)
 
 def S : (α → β → γ) → (α → β) → α → γ :=
-  sorry
+  fun f g a ↦ f a (g a)
 
 def nonsense1 : (γ → (α → β) → α) → γ → β → α :=
-  sorry
+  fun f c b ↦ f c (fun a ↦ b)
 
 def nonsense2 : (α → α → β) → (β → γ) → α → β → γ :=
-  sorry
+  /- fun f g a b ↦ g b -/
+  fun f g a b ↦ g (f a a)
 
 def nonsense3 : ((α → β) → γ → δ) → γ → β → δ :=
-  sorry
+  fun f c b ↦ f (fun a ↦ b) c
 
 def nonsense4 : (α → β) → (α → γ) → α → β → γ :=
-  sorry
+  fun f g a b ↦ g a
 
 /- 1.2. Complete the following definition.
 
@@ -63,7 +64,7 @@ follow the procedure described in the Hitchhiker's Guide.
 Note: Peirce is pronounced like the English word "purse". -/
 
 def weakPeirce : ((((α → β) → α) → α) → β) → β :=
-  sorry
+  fun f ↦ f (fun g ↦ g (fun a ↦ f (fun h ↦ a)))
 
 /- ## Question 2: Typing Derivation
 
@@ -73,11 +74,41 @@ draw horizontal bars) and `⊢` useful.
 
 Feel free to introduce abbreviations to avoid repeating large contexts `C`. -/
 
--- write your solution here
+/-
+
+                                                                    -------------- VAR     ---------- VAR
+                                                                    C ⊢ g : γ → β          C ⊢ c : γ
+                                    -------------- VAR              -------------- APP     ---------- APP
+                                    C ⊢ f : α → β                                 C ⊢ g c : β
+                                    -------------- APP                            ------------- APP
+                                            f : α → β, g : γ → α, c : γ ⊢ f (g c) : β
+                                      ------------------------------------------------------ FUN
+                                      f : α → β, g : γ → α ⊢ fun (c : γ) ↦ f (g c)) : γ → β
+                                  ----------------------------------------------------------------- FUN
+                                  f : α → β ⊢ fun (g : γ → α) (c : γ) ↦ f (g c)) : (γ → α) → γ → β
+                              ------------------------------------------------------------------------------ FUN
+                              ⊢ (fun (f : α → β) (g : γ → α) (c : γ) ↦ f (g c)) : (α → β) → (γ → α) → γ → β
+
+-/
 
 /- 2.2. Show the typing derivation for your definition of `S` above, using
 ASCII or Unicode art. Start with an empty context. -/
 
--- write your solution here
+/-
+
+                     ----------------- VAR   ---------- VAR             ------------- VAR   ---------- VAR
+                     C ⊢ f : α → β → γ       C ⊢ a : α                  C ⊢ g : α → β       C ⊢ a : α
+                     ----------------- APP   ---------- APP             ------------- APP   ---------- APP
+                                 C ⊢ f a : β → γ                                   C ⊢ g a : β
+                                 ---------------- APP                              ------------ APP
+                                      f : α → β → γ, g : α → β, a : α ⊢ f a (g a) : γ
+                                      ------------------------------------------------------------- FUN
+                                      f : α → β → γ, g : α → β ⊢ (fun (a : α) ↦ f a (g a)) : α → γ
+                                ------------------------------------------------------------------------ FUN
+                                f : α → β → γ ⊢ (fun (g : α → β) (a : α) ↦ f a (g a)) : (α → β) → α → γ
+                            ---------------------------------------------------------------------------------------- FUN
+                            ⊢ (fun (f : α → β → γ) (g : α → β) (a : α) ↦ f a (g a)) : (α → β → γ) → (α → β) → α → γ
+
+-/
 
 end LoVe
