@@ -23,14 +23,16 @@ namespace LoVe
 list. Your function should be defined by recursion and not using `++`
 (`List.append`). -/
 
-def snoc {α : Type} : List α → α → List α :=
-  sorry
+def snoc {α : Type} : List α → α → List α
+  | [], x         => [x]
+  | (x :: xs), y  => x :: (snoc xs y)
 
 /- 1.2. Convince yourself that your definition of `snoc` works by testing it on
 a few examples. -/
 
 #eval snoc [1] 2
--- invoke `#eval` or `#reduce` here
+#eval snoc [3, 2, 1] 0
+#eval snoc [[1, 2], [3]] []
 
 
 /- ## Question 2: Minus 2
@@ -39,14 +41,18 @@ a few examples. -/
 
 Hint: There should be three cases. -/
 
-def minusTwo : ℕ → ℕ :=
-  sorry
+def minusTwo : ℕ → ℕ
+  | 0 => 0
+  | 1 => 1
+  | n => n - 2
 
 /- 2.2. Convince yourself that your definition of `minusTwo` works by testing
 it on a few examples. -/
 
 #eval minusTwo 0   -- expected: 0
--- invoke `#eval` or `#reduce` here
+#eval minusTwo 1
+#eval minusTwo 2
+#eval minusTwo 3
 
 
 /- ## Question 3: Sum
@@ -54,8 +60,9 @@ it on a few examples. -/
 3.1. Define a `sum` function that computes the sum of all the numbers in a
 list. -/
 
-def sum : List ℕ → ℕ :=
-  sorry
+def sum : List ℕ → ℕ
+  | []        => 0
+  | x :: xs   => x + sum xs
 
 #eval sum [1, 12, 3]   -- expected: 16
 
@@ -68,7 +75,17 @@ theorems. Schematically:
 
 Try to give meaningful names to your theorems. Use `sorry` as the proof. -/
 
--- enter your theorem statements here
+theorem sum_snoc (ms : List ℕ) (n : ℕ) :
+    sum (snoc ms n) = n + sum ms :=
+  sorry
+
+theorem sum_append (ms ns : List ℕ) :
+    sum (ms ++ ns) = sum ms + sum ns :=
+  sorry
+
+theorem sum_reverse (ns : List ℕ) :
+    sum (reverse ns) = sum ns :=
+  sorry
 
 
 /- ## Question 4: Lists
@@ -107,6 +124,12 @@ Hint: Take a look at `reverse_reverse` from the demonstration file. -/
 
 #check SorryTheorems.reverse_reverse
 
--- enter your theorem statements here
+theorem append_assoc {α : Type} (xs ys zs : List α) :
+    append _ (append _ xs ys) zs = append _ xs (append _ ys zs) :=
+  sorry
+
+theorem rev_app_dis {α : Type} (xs ys : List α) :
+    reverse (append _ xs ys) = append _ (reverse ys) (reverse xs) :=
+  sorry
 
 end LoVe
