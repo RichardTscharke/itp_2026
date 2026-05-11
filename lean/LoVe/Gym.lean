@@ -137,3 +137,26 @@ def reverse {α : Type} : List α → List α
   | x :: xs   => (reverse xs) ++ (x :: List.nil)
 
 #eval reverse [1, 2, 3]
+
+
+/-
+Give definitions for true statements (theorems) for
+1. addition is comm
+2. distributiv
+3. double reversed List = List
+-/
+namespace SorryTheorems
+
+theorem add_comm (m n : ℕ) :
+    m + n = n + m :=
+  sorry
+
+theorem dis (x y z : ℤ) :
+    (x + y) * z = x * z + y * z :=
+  sorry
+
+theorem rev {α : Type} (xs : List α) :
+    reverse (reverse xs) = xs :=
+  sorry
+
+end SorryTheorems
