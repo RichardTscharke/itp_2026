@@ -160,3 +160,54 @@ theorem rev {α : Type} (xs : List α) :
   sorry
 
 end SorryTheorems
+
+
+-- proof a → b → a
+theorem fst_of_two_props :
+    ∀ (a b : Prop), a → b → a :=
+  by
+    intro x y ha hb
+    apply ha
+
+--theorem prop_comp :
+theorem prop_comp :
+  ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
+by
+  intro a b c hab hbc ha
+  apply hbc
+  apply hab
+  apply ha
+
+theorem prop_comp_param (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a):
+     c :=
+  by
+    apply hbc
+    apply hab
+    apply ha
+
+
+
+theorem and_swap (a b : Prop) :
+     a ∧ b → b ∧ a :=
+  by
+    intro hab
+    apply And.intro
+    apply And.right
+    exact hab
+    apply And.left
+    exact hab
+
+theorem and_swap2 :
+    ∀ a b : Prop, a ∧ b → b ∧ a :=
+  by
+    intro a b hab
+    apply And.intro
+    · exact And.right hab
+    · exact And.left hab
+
+theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
+    a = c :=
+  by
+    apply Eq.trans
+    · exact hab
+    · exact Eq.symm hcb
