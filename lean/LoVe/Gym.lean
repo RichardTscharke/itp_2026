@@ -162,52 +162,100 @@ theorem rev {α : Type} (xs : List α) :
 end SorryTheorems
 
 
--- proof a → b → a
 theorem fst_of_two_props :
     ∀ (a b : Prop), a → b → a :=
   by
-    intro x y ha hb
-    apply ha
+    sorry
 
---theorem prop_comp :
 theorem prop_comp :
   ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
 by
-  intro a b c hab hbc ha
-  apply hbc
-  apply hab
-  apply ha
+  sorry
 
-theorem prop_comp_param (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a):
-     c :=
+theorem prop_comp_para (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a) :
+    c :=
   by
-    apply hbc
-    apply hab
-    apply ha
-
-
+    sorry
 
 theorem and_swap (a b : Prop) :
      a ∧ b → b ∧ a :=
   by
-    intro hab
-    apply And.intro
-    apply And.right
-    exact hab
-    apply And.left
-    exact hab
-
-theorem and_swap2 :
-    ∀ a b : Prop, a ∧ b → b ∧ a :=
-  by
-    intro a b hab
-    apply And.intro
-    · exact And.right hab
-    · exact And.left hab
+    sorry
 
 theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
     a = c :=
   by
-    apply Eq.trans
-    · exact hab
-    · exact Eq.symm hcb
+    sorry
+
+theorem Eq_trans_symm_rw {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
+  a = c :=
+by
+  sorry
+
+theorem Eq_trans_symm_rw_twist {α : Type} (a b c : α) (hab : b = a) (hcb : c = b) :
+  a = c :=
+by
+  sorry
+
+
+namespace MyNats
+/-
+inductive Nat : Type where
+  | zero : Nat
+  | succ : Nat → Nat
+-/
+
+def add : ℕ → ℕ → ℕ
+  | m, .zero    => m
+  | m, .succ n  => .succ (add m n)
+
+def mul : Nat → Nat → Nat
+  | _, .zero    => .zero
+  | m, .succ n  => add m (mul m n)
+
+theorem add_zero2 (n : ℕ) :
+    add 0 n = n :=
+  by
+    sorry
+
+theorem add_succ2 (m n : ℕ) :
+    add (.succ m) n = .succ (add m n) :=
+  by
+    sorry
+
+/-
+Goal 1: add m.succ (n' + 1) = (add m (n' + 1)).succ
+add : m, .succ n  => .succ (add m n)
+=> (add m.succ n').succ
+
+Goal 2: (add m.succ n').succ = (add m (n' + 1)).succ
+ih : add m.succ n' = (add m n').succ
+=> (add m n').succ.succ = (add m (n' + 1)).succ
+! simp does the rest here !
+-/
+
+theorem add_comm (m n : ℕ) :
+    add m n = add n m :=
+  by
+    sorry
+
+
+theorem add_assoc (l m n : ℕ) :
+    add (add l m) n = add l (add m n) :=
+  by
+    sorry
+
+-- Tells ac_rfl that add is assoc and comm
+instance Associative_add : Std.Associative add :=
+  {assoc := add_assoc}
+
+instance Commutative_add : Std.Commutative add :=
+  {comm := add_comm}
+
+
+theorem mul_add (l m n : ℕ) :
+    mul l (add m n) = add (mul l m) (mul l n) :=
+  by
+    sorry
+
+end MyNats

@@ -128,3 +128,29 @@ def appendPretty {α : Type} : List α → List α → List α
 def reverse {α : Type} : List α → List α
   | .nil    => .nil
   | x :: xs => reverse xs ++ [x]
+
+
+theorem fst_of_two_props :
+    ∀ (a b : Prop), a → b → a :=
+  by
+    sorry
+
+theorem prop_comp :
+  ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
+by
+  sorry
+
+theorem prop_comp_para (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a) :
+    c :=
+  by
+    sorry
+
+theorem and_swap (a b : Prop) :
+     a ∧ b → b ∧ a :=
+  by
+    sorry
+
+theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
+    a = c :=
+  by
+    sorry
