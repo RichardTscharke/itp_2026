@@ -165,37 +165,48 @@ end SorryTheorems
 theorem fst_of_two_props :
     ∀ (a b : Prop), a → b → a :=
   by
-    sorry
+    intro a b ha hb
+    exact ha
 
 theorem prop_comp :
   ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
 by
-  sorry
+  intro a b c hab hbc ha
+  apply hbc
+  apply hab
+  exact ha
 
 theorem prop_comp_para (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a) :
     c :=
   by
-    sorry
+    apply hbc
+    apply hab
+    exact ha
 
 theorem and_swap (a b : Prop) :
      a ∧ b → b ∧ a :=
   by
-    sorry
+    intro hab
+    apply And.intro
+    · apply And.right hab
+    · apply And.left hab
 
 theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
     a = c :=
   by
-    sorry
+    apply Eq.trans
+    · exact hab
+    · apply Eq.symm hcb
 
 theorem Eq_trans_symm_rw {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
   a = c :=
 by
-  sorry
+  rw[hab, hcb]
 
 theorem Eq_trans_symm_rw_twist {α : Type} (a b c : α) (hab : b = a) (hcb : c = b) :
   a = c :=
 by
-  sorry
+  rw[← hab, hcb]
 
 
 namespace MyNats
@@ -216,12 +227,16 @@ def mul : Nat → Nat → Nat
 theorem add_zero2 (n : ℕ) :
     add 0 n = n :=
   by
-    sorry
+    induction n with
+    | zero        => rfl
+    | succ n' ih  => rw[add, ih]
 
 theorem add_succ2 (m n : ℕ) :
     add (.succ m) n = .succ (add m n) :=
   by
-    sorry
+    induction n with
+    | zero        => rw[add, add]
+    | succ n' ih  => rw[add, ih, add]
 
 /-
 Goal 1: add m.succ (n' + 1) = (add m (n' + 1)).succ
@@ -230,20 +245,26 @@ add : m, .succ n  => .succ (add m n)
 
 Goal 2: (add m.succ n').succ = (add m (n' + 1)).succ
 ih : add m.succ n' = (add m n').succ
-=> (add m n').succ.succ = (add m (n' + 1)).succ
-! simp does the rest here !
+=> (add m n').succ.succ
+
+Goal 3: (add m n').succ.succ = (add m (n' + 1)).succ
+add : m, .succ n  => .succ (add m n)
+=> (add m n').succ.succ = (add m n').succ.succ
 -/
 
 theorem add_comm (m n : ℕ) :
     add m n = add n m :=
   by
-    sorry
-
+    induction n with
+    | zero        => rw[add, add_zero2]
+    | succ n' ih  => rw[add, ih, add_succ2]
 
 theorem add_assoc (l m n : ℕ) :
     add (add l m) n = add l (add m n) :=
   by
-    sorry
+    induction n with
+    | zero        => simp[add]
+    | succ n' ih  => simp[add, ih]
 
 -- Tells ac_rfl that add is assoc and comm
 instance Associative_add : Std.Associative add :=
@@ -252,10 +273,11 @@ instance Associative_add : Std.Associative add :=
 instance Commutative_add : Std.Commutative add :=
   {comm := add_comm}
 
-
 theorem mul_add (l m n : ℕ) :
     mul l (add m n) = add (mul l m) (mul l n) :=
   by
-    sorry
+    induction n with
+    | zero        => rw[add, mul, add]
+    | succ n' ih  => simp[add, mul, ih]; ac_rfl
 
 end MyNats
