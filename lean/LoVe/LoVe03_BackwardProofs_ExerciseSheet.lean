@@ -29,35 +29,57 @@ Section 3.3 in the Hitchhiker's Guide. -/
 
 theorem I (a : Prop) :
     a → a :=
-  sorry
+  by
+    intro ha
+    exact ha
 
 theorem K (a b : Prop) :
     a → b → b :=
-  sorry
+  by
+    intro ha hb
+    clear ha
+    exact hb
 
 theorem C (a b c : Prop) :
     (a → b → c) → b → a → c :=
-  sorry
+  by
+    intro habc hb ha
+    apply habc
+    · exact ha
+    · exact hb
 
 theorem proj_fst (a : Prop) :
     a → a → a :=
-  sorry
+  by
+    intro ha haa
+    exact ha
 
 /- Please give a different answer than for `proj_fst`: -/
 
 theorem proj_snd (a : Prop) :
     a → a → a :=
-  sorry
+  by
+    intro ha haa
+    exact haa
 
 theorem some_nonsense (a b c : Prop) :
     (a → b → c) → a → (a → c) → b → c :=
-  sorry
+  by
+    intro habc ha hac hb
+    clear habc hb
+    apply hac
+    exact ha
 
 /- 1.2. Prove the contraposition rule using basic tactics. -/
 
 theorem contrapositive (a b : Prop) :
     (a → b) → ¬ b → ¬ a :=
-  sorry
+  by
+    intro hab h!b ha
+    apply h!b
+    apply hab
+    exact ha
+
 
 /- 1.3. Prove the distributivity of `∀` over `∧` using basic tactics.
 
@@ -67,7 +89,19 @@ be necessary. -/
 
 theorem forall_and {α : Type} (p q : α → Prop) :
     (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
-  sorry
+  by
+    apply Iff.intro
+    · intro hApq
+      apply And.intro
+      · intro x
+        exact And.left (hApq x)
+      · intro x
+        exact And.right (hApq x)
+    · intro hApAq x
+      apply And.intro
+      · exact ((And.left hApAq) x)
+      · exact ((And.right hApAq) x)
+
 
 
 /- ## Question 2: Natural Numbers
@@ -76,26 +110,43 @@ theorem forall_and {α : Type} (p q : α → Prop) :
 `mul` operator defined in lecture 1. -/
 
 #check mul
+/-
+def mul : Nat → Nat → Nat
+  | _, .zero    => .zero
+  | m, .succ n  => add m (mul m n)
+-/
 
 theorem mul_zero (n : ℕ) :
     mul 0 n = 0 :=
-  sorry
+  by
+    induction n with
+    | zero        => rw[mul]
+    | succ n' ih  => rw[mul, ih, add]
 
 #check add_succ
 theorem mul_succ (m n : ℕ) :
     mul (Nat.succ m) n = add (mul m n) n :=
-  sorry
+  by
+    induction n with
+    | zero        => rw[mul, mul, add]
+    | succ n' ih  => rw[mul, mul, add_succ, ih, add, add_assoc]
 
 /- 2.2. Prove commutativity and associativity of multiplication using the
 `induction` tactic. Choose the induction variable carefully. -/
 
 theorem mul_comm (m n : ℕ) :
     mul m n = mul n m :=
-  sorry
+  by
+    induction n with
+    | zero        => rw[mul, mul_zero]
+    | succ n' ih  => rw[mul, mul_succ, ih, add_comm]
 
 theorem mul_assoc (l m n : ℕ) :
     mul (mul l m) n = mul l (mul m n) :=
-  sorry
+  by
+    induction n with
+    | zero        => simp[mul]
+    | succ n' ih  => rw[mul, mul, ih, mul_add]
 
 /- 2.3. Prove the symmetric variant of `mul_add` using `rw`. To apply
 commutativity at a specific position, instantiate the rule by passing some
@@ -103,7 +154,10 @@ arguments (e.g., `mul_comm _ l`). -/
 
 theorem add_mul (l m n : ℕ) :
     add (mul n l) (mul n m) = mul (add l m) n :=
-  sorry
+  by
+    induction n with
+    | zero        => rw[mul_comm _ 0, mul_add]
+    | succ n' _   => rw[mul_comm (add l m) _, mul_add]
 
 
 /- ## Question 3 (**optional**): Intuitionistic Logic
@@ -132,13 +186,33 @@ and similarly for `Peirce`. -/
 
 theorem Peirce_of_EM :
     ExcludedMiddle → Peirce :=
-  sorry
+  by
+    rw[ExcludedMiddle, Peirce]
+    intro hEM
+    intro a b haba
+    apply Or.elim (hEM a)
+    · intro ha
+      exact ha
+    · intro h!a
+      apply haba
+      intro ha
+      apply False.elim
+      apply h!a
+      apply ha
+
 
 /- 3.2 (**optional**). Prove the following implication using tactics. -/
 
 theorem DN_of_Peirce :
     Peirce → DoubleNegation :=
-  sorry
+  by
+    rw[Peirce, DoubleNegation]
+    intro hP a h!!a
+    apply (hP a False)
+    intro h!a
+    apply False.elim
+    apply h!!a
+    apply h!a
 
 /- We leave the remaining implication for the homework: -/
 
