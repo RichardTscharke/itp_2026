@@ -159,6 +159,7 @@ theorem and_swap (a b : Prop) :
     · exact And.right hab
     · exact And.left hab
 
+
 theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
     a = c :=
   by
@@ -249,3 +250,132 @@ theorem mul_add (l m n : ℕ) :
     | succ n' ih  => simp[mul, add, ih]; ac_rfl
 
 end MyNats
+
+namespace Forward
+
+theorem fst_of_two_probs :
+    ∀ a b : Prop, a → b → a :=
+  fix a b : Prop
+  assume ha : a
+  assume hb : b
+  show a from
+    ha
+
+theorem prop_comp :
+    ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
+  fix a b c : Prop
+  assume hab : a → b
+  assume hbc : b → c
+  assume ha : a
+  have hc : c :=
+    hbc (hab ha)
+  show c from
+    hc
+
+--use another theorem with arguments
+theorem add_comm_0_l (n : ℕ) :
+    0 + n = n + 0 :=
+  add_comm 0 n
+
+theorem Add_swap_structured :
+    ∀ a b : Prop, a ∧ b → b ∧ a :=
+  fix a b : Prop
+  assume hab : a ∧ b
+  have hb : b :=
+    And.right hab
+  have ha : a :=
+    And.left hab
+  show b ∧ a from
+    And.intro hb ha
+
+theorem Add_swap_tactical :
+    ∀ a b : Prop, a ∧ b → b ∧ a :=
+  by
+    intro a b hab
+    apply And.intro
+    · apply And.right hab
+    · apply And.left hab
+
+theorem Or_swap (a b : Prop) :
+    a ∨ b → b ∨ a :=
+  assume hab : a ∨ b
+  show b ∨ a from
+    Or.elim hab
+      (assume ha : a
+       show b ∨ a from
+         Or.inr ha)
+      (assume hb : b
+       show b ∨ a from
+         Or.inl hb)
+
+def double (n : ℕ) : ℕ :=
+  n + n
+
+theorem Nat_exists_double_iden :
+    ∃n : ℕ, double n = n :=
+  Exists.intro 0
+    (show double 0 = 0 from
+       by rfl)
+
+theorem Nat_exists_double_iden_no_show :
+    ∃n : ℕ, double n = n :=
+  Exists.intro 0 (by rfl)
+
+theorem modus_ponens (a b : Prop) :
+    (a → b) → a → b :=
+  assume hab : a → b
+  assume ha : a
+  show b from
+    hab ha
+
+theorem not_not_intro (a : Prop) :
+    a → ¬¬ a :=
+  assume ha : a
+  assume hna : ¬ a
+  show False from
+    hna ha
+
+theorem Forall.one_point {α : Type} (t : α) (P : α → Prop) :
+    (∀ x, x = t → P x) ↔ P t :=
+  Iff.intro
+    (assume hL : ∀ x, x = t → P x
+     show P t from
+      by
+        apply hL t
+        rfl)
+    (assume hR : P t
+     fix x : α
+     assume hxt : x = t
+     show P x from
+      by
+        rw[hxt]
+        exact hR)
+
+theorem beast_666 (beast : ℕ) :
+    (∀ n, n = 666 → beast ≥ n) ↔ beast ≥ 666 :=
+  Forall.one_point 666 (fun m ↦ beast ≥ m)
+
+
+theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
+    (∃x : α, x = t ∧ P x) ↔ P t :=
+  Iff.intro
+    (assume hL : ∃ x : α, x = t ∧ P x
+     show P t from
+      Exists.elim hL
+        (fix a : α
+         assume hLL : a = t ∧ P a
+         show P t from
+          have hat : a = t :=
+            And.left hLL
+          have hPa : P a :=
+            And.right hLL
+          by
+            rw[← hat]
+            exact hPa
+          ))
+    (assume hR : P t
+     show ∃x : α, x = t ∧ P x from
+      Exists.intro t
+        (And.intro rfl hR)
+      )
+end Forward
