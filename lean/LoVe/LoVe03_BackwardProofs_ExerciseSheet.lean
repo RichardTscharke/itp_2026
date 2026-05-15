@@ -76,9 +76,11 @@ theorem contrapositive (a b : Prop) :
     (a → b) → ¬ b → ¬ a :=
   by
     intro hab h!b ha
+    apply False.elim
     apply h!b
     apply hab
     exact ha
+
 
 
 /- 1.3. Prove the distributivity of `∀` over `∧` using basic tactics.
@@ -99,9 +101,8 @@ theorem forall_and {α : Type} (p q : α → Prop) :
         exact And.right (hApq x)
     · intro hApAq x
       apply And.intro
-      · exact ((And.left hApAq) x)
-      · exact ((And.right hApAq) x)
-
+      · exact And.left hApAq x
+      · exact And.right hApAq x
 
 
 /- ## Question 2: Natural Numbers
@@ -129,7 +130,7 @@ theorem mul_succ (m n : ℕ) :
   by
     induction n with
     | zero        => rw[mul, mul, add]
-    | succ n' ih  => rw[mul, mul, add_succ, ih, add, add_assoc]
+    | succ n' ih  => simp[mul, add, ih, add_succ, add_assoc]
 
 /- 2.2. Prove commutativity and associativity of multiplication using the
 `induction` tactic. Choose the induction variable carefully. -/
@@ -138,7 +139,7 @@ theorem mul_comm (m n : ℕ) :
     mul m n = mul n m :=
   by
     induction n with
-    | zero        => rw[mul, mul_zero]
+    | zero        => rw[mul_zero, mul]
     | succ n' ih  => rw[mul, mul_succ, ih, add_comm]
 
 theorem mul_assoc (l m n : ℕ) :
@@ -146,7 +147,7 @@ theorem mul_assoc (l m n : ℕ) :
   by
     induction n with
     | zero        => simp[mul]
-    | succ n' ih  => rw[mul, mul, ih, mul_add]
+    | succ n' ih  => simp[mul, mul_add, ih]
 
 /- 2.3. Prove the symmetric variant of `mul_add` using `rw`. To apply
 commutativity at a specific position, instantiate the rule by passing some
@@ -156,8 +157,9 @@ theorem add_mul (l m n : ℕ) :
     add (mul n l) (mul n m) = mul (add l m) n :=
   by
     induction n with
-    | zero        => rw[mul_comm _ 0, mul_add]
-    | succ n' _   => rw[mul_comm (add l m) _, mul_add]
+    | zero        => simp[mul, mul_zero]
+                     rfl
+    | succ n' ih  => rw[mul_comm (add l m) _, mul_add]
 
 
 /- ## Question 3 (**optional**): Intuitionistic Logic
@@ -189,7 +191,8 @@ theorem Peirce_of_EM :
   by
     rw[ExcludedMiddle, Peirce]
     intro hEM
-    intro a b haba
+    intro a b
+    intro haba
     apply Or.elim (hEM a)
     · intro ha
       exact ha
@@ -208,11 +211,11 @@ theorem DN_of_Peirce :
   by
     rw[Peirce, DoubleNegation]
     intro hP a h!!a
-    apply (hP a False)
+    apply hP a False
     intro h!a
     apply False.elim
     apply h!!a
-    apply h!a
+    exact h!a
 
 /- We leave the remaining implication for the homework: -/
 
@@ -220,7 +223,17 @@ namespace SorryTheorems
 
 theorem EM_of_DN :
     DoubleNegation → ExcludedMiddle :=
-  sorry
+  by
+    rw[DoubleNegation, ExcludedMiddle]
+    intro hDN a
+    apply hDN (a ∨ ¬ a)
+    intro h
+    apply h
+    apply Or.inr
+    intro ha
+    apply h
+    apply Or.inl ha
+
 
 end SorryTheorems
 
