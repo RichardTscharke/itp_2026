@@ -165,37 +165,47 @@ end SorryTheorems
 theorem fst_of_two_props :
     ∀ (a b : Prop), a → b → a :=
   by
-    sorry
+    intro a b ha hb
+    clear hb
+    exact ha
 
 theorem prop_comp :
   ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
 by
-  sorry
+  intro a b c hab hbc ha
+  apply hbc
+  apply hab
+  exact ha
 
 theorem prop_comp_para (a b c : Prop) (hab : a → b) (hbc : b → c) (ha : a) :
     c :=
   by
-    sorry
+    apply hbc
+    apply hab
+    exact ha
 
 theorem and_swap (a b : Prop) :
      a ∧ b → b ∧ a :=
   by
-    sorry
+    intro hab
+    apply And.intro
+    · exact And.right hab
+    · exact And.left hab
 
 theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
     a = c :=
   by
-    sorry
+    exact Eq.trans hab (Eq.symm hcb)
 
 theorem Eq_trans_symm_rw {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
   a = c :=
 by
-  sorry
+  rw[hab, hcb]
 
 theorem Eq_trans_symm_rw_twist {α : Type} (a b c : α) (hab : b = a) (hcb : c = b) :
   a = c :=
 by
-  sorry
+  rw[← hab, hcb]
 
 
 namespace MyNats
@@ -216,36 +226,30 @@ def mul : Nat → Nat → Nat
 theorem add_zero2 (n : ℕ) :
     add 0 n = n :=
   by
-    sorry
+    induction n with
+    | zero        => rfl
+    | succ n' ih  => rw[add, ih]
 
 theorem add_succ2 (m n : ℕ) :
     add (.succ m) n = .succ (add m n) :=
   by
-    sorry
-
-/-
-Goal 1: add m.succ (n' + 1) = (add m (n' + 1)).succ
-add : m, .succ n  => .succ (add m n)
-=> (add m.succ n').succ
-
-Goal 2: (add m.succ n').succ = (add m (n' + 1)).succ
-ih : add m.succ n' = (add m n').succ
-=> (add m n').succ.succ
-
-Goal 3: (add m n').succ.succ = (add m (n' + 1)).succ
-add : m, .succ n  => .succ (add m n)
-=> (add m n').succ.succ = (add m n').succ.succ
--/
+    induction n with
+    | zero        => rw[add, add]
+    | succ n' ih  => rw[add, add, ih]
 
 theorem add_comm (m n : ℕ) :
     add m n = add n m :=
   by
-    sorry
+    induction n with
+    | zero        => rw[add, add_zero2]
+    | succ n' ih  => rw[add_succ2, add, ih]
 
 theorem add_assoc (l m n : ℕ) :
     add (add l m) n = add l (add m n) :=
   by
-    sorry
+    induction n with
+    | zero        => rw[add, add]
+    | succ n' ih  => rw[add, add, add, ih]
 
 -- Tells ac_rfl that add is assoc and comm
 instance Associative_add : Std.Associative add :=
@@ -257,7 +261,9 @@ instance Commutative_add : Std.Commutative add :=
 theorem mul_add (l m n : ℕ) :
     mul l (add m n) = add (mul l m) (mul l n) :=
   by
-    sorry
+    induction n with
+    | zero        => rw[add, mul, add]
+    | succ n' ih  => simp[mul, add, ih]; ac_rfl
 
 end MyNats
 
@@ -265,59 +271,122 @@ namespace Forward
 
 theorem fst_of_two_probs :
     ∀ a b : Prop, a → b → a :=
-  sorry
+  fix a b : Prop
+  assume ha : a
+  assume hb : b
+  show a from
+    ha
 
 theorem prop_comp :
     ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
-  sorry
+  fix a b c : Prop
+  assume hab : a → b
+  assume hbc : b → c
+  assume ha : a
+  show c from
+    hbc (hab ha)
 
 --use another theorem with arguments
 theorem add_comm_0_l (n : ℕ) :
     0 + n = n + 0 :=
-  sorry
+  add_comm 0 n
 
 theorem Add_swap_structured :
     ∀ a b : Prop, a ∧ b → b ∧ a :=
-  sorry
+  fix a b : Prop
+  assume hab : a ∧ b
+  show b ∧ a from
+    have hb : b :=
+      And.right hab
+    have ha : a :=
+      And.left hab
+    And.intro hb ha
 
 theorem Add_swap_tactical :
     ∀ a b : Prop, a ∧ b → b ∧ a :=
-  sorry
+  by
+    intro a b hab
+    apply And.intro
+    · exact And.right hab
+    · exact And.left hab
 
 theorem Or_swap (a b : Prop) :
     a ∨ b → b ∨ a :=
-  sorry
+  assume hab : a ∨ b
+  show b ∨ a from
+    Or.elim hab
+      (assume ha : a
+       show b ∨ a from
+       Or.inr ha)
+      (assume hb : b
+       show b ∨ a from
+       Or.inl hb)
+
+
 
 def double (n : ℕ) : ℕ :=
   n + n
 
 theorem Nat_exists_double_iden :
     ∃n : ℕ, double n = n :=
-  sorry
+  Exists.intro
+    (0)
+    (show double 0 = 0 from
+      by
+        rw[double])
 
 theorem Nat_exists_double_iden_no_show :
     ∃n : ℕ, double n = n :=
-  sorry
+  Exists.intro
+    (0)
+    (by
+      rw[double])
 
 theorem modus_ponens (a b : Prop) :
     (a → b) → a → b :=
-  sorry
+  assume hab : a → b
+  assume ha : a
+  show b from
+    hab ha
 
 theorem not_not_intro (a : Prop) :
     a → ¬¬ a :=
-  sorry
+  assume ha : a
+  assume h!a : a → False
+  show False from
+    h!a ha
 
 theorem Forall.one_point {α : Type} (t : α) (P : α → Prop) :
     (∀ x, x = t → P x) ↔ P t :=
-  sorry
+  Iff.intro
+    (assume hL : ∀ x, x = t → P x
+     show P t from
+      by
+        apply hL t
+        rfl)
+    (assume hR : P t
+     show ∀ x, x = t → P x from
+      by
+        intro x hxt
+        rw[hxt]
+        exact hR)
 
 theorem beast_666 (beast : ℕ) :
     (∀ n, n = 666 → beast ≥ n) ↔ beast ≥ 666 :=
-  sorry
+  Forall.one_point 666 (fun n : ℕ ↦ beast ≥ n)
 
 theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
     (∃x : α, x = t ∧ P x) ↔ P t :=
-  sorry
-
+  Iff.intro
+    (assume hL : ∃ x, x = t ∧ P x
+     show P t from
+      Exists.elim hL
+        (by
+          intro x hLL
+          rw[← (And.left hLL)]
+          exact And.right hLL))
+    (assume hR : P t
+     show ∃ x, x = t ∧ P x from
+      Exists.intro t (And.intro rfl hR))
 
 end Forward
