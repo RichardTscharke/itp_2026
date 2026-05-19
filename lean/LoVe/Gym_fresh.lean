@@ -327,5 +327,24 @@ theorem two_mul_example (m n : ℕ) :
     2 * m + n = m + n + m :=
   sorry
 
+def reverse {α : Type} : List α → List α
+  | .nil    => .nil
+  | x :: xs => reverse xs ++ [x]
+
+theorem reverse_append_tac {α : Type} (xs ys : List α) :
+    reverse (xs ++ ys) = reverse ys ++ (reverse xs) :=
+  sorry
+
+theorem reverse_reverse_tac {α : Type} (xs : List α) :
+    reverse (reverse xs) = xs :=
+  sorry
+
+/-
+theorem reverse_append_pm {α : Type} :
+  sorry
+
+theorem reverse_reverse_pm {α : Type} :
+  sorry
+-/
 
 end Forward
