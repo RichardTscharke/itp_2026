@@ -319,5 +319,13 @@ theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
     (∃x : α, x = t ∧ P x) ↔ P t :=
   sorry
 
+theorem two_mul_example_have (m n : ℕ) :
+    2 * m + n = m + n + m :=
+  sorry
+
+theorem two_mul_example (m n : ℕ) :
+    2 * m + n = m + n + m :=
+  sorry
+
 
 end Forward

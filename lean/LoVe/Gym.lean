@@ -195,7 +195,9 @@ theorem and_swap (a b : Prop) :
 theorem Eq_trans_symm {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
     a = c :=
   by
-    exact Eq.trans hab (Eq.symm hcb)
+    apply Eq.trans
+    · exact hab
+    · exact (Eq.symm hcb)
 
 theorem Eq_trans_symm_rw {α : Type} (a b c : α) (hab : a = b) (hcb : c = b) :
   a = c :=
@@ -236,20 +238,34 @@ theorem add_succ2 (m n : ℕ) :
     induction n with
     | zero        => rw[add, add]
     | succ n' ih  => rw[add, add, ih]
+/-
+Goal 1: add m.succ (n' + 1) = (add m (n' + 1)).succ
+add : m, .succ n  => .succ (add m n)
+=> (add m.succ n').succ
+
+Goal 2: (add m.succ n').succ = (add m (n' + 1)).succ
+ih : add m.succ n' = (add m n').succ
+=> (add m n').succ.succ
+
+Goal 3: (add m n').succ.succ = (add m (n' + 1)).succ
+add : m, .succ n  => .succ (add m n)
+=> (add m n').succ.succ = (add m n').succ.succ
+-/
 
 theorem add_comm (m n : ℕ) :
     add m n = add n m :=
   by
     induction n with
     | zero        => rw[add, add_zero2]
-    | succ n' ih  => rw[add_succ2, add, ih]
+    | succ n' ih  => rw[add, add_succ2, ih]
 
 theorem add_assoc (l m n : ℕ) :
     add (add l m) n = add l (add m n) :=
   by
     induction n with
     | zero        => rw[add, add]
-    | succ n' ih  => rw[add, add, add, ih]
+    | succ n' ih  => rw[add, add, ih]
+                     rfl
 
 -- Tells ac_rfl that add is assoc and comm
 instance Associative_add : Std.Associative add :=
@@ -258,12 +274,6 @@ instance Associative_add : Std.Associative add :=
 instance Commutative_add : Std.Commutative add :=
   {comm := add_comm}
 
-theorem mul_add (l m n : ℕ) :
-    mul l (add m n) = add (mul l m) (mul l n) :=
-  by
-    induction n with
-    | zero        => rw[add, mul, add]
-    | succ n' ih  => simp[mul, add, ih]; ac_rfl
 
 end MyNats
 
@@ -274,8 +284,7 @@ theorem fst_of_two_probs :
   fix a b : Prop
   assume ha : a
   assume hb : b
-  show a from
-    ha
+  ha
 
 theorem prop_comp :
     ∀ a b c : Prop, (a → b) → (b → c) → a → c :=
@@ -310,18 +319,16 @@ theorem Add_swap_tactical :
     · exact And.right hab
     · exact And.left hab
 
+-- Or.elim : a ∨ b → (a → c) → (b → c) → c
 theorem Or_swap (a b : Prop) :
     a ∨ b → b ∨ a :=
   assume hab : a ∨ b
   show b ∨ a from
     Or.elim hab
       (assume ha : a
-       show b ∨ a from
-       Or.inr ha)
+      Or.inr ha)
       (assume hb : b
-       show b ∨ a from
-       Or.inl hb)
-
+      Or.inl hb)
 
 
 def double (n : ℕ) : ℕ :=
@@ -329,16 +336,7 @@ def double (n : ℕ) : ℕ :=
 
 theorem Nat_exists_double_iden :
     ∃n : ℕ, double n = n :=
-  Exists.intro
-    (0)
-    (show double 0 = 0 from
-      by
-        rw[double])
-
-theorem Nat_exists_double_iden_no_show :
-    ∃n : ℕ, double n = n :=
-  Exists.intro
-    (0)
+  Exists.intro 0
     (by
       rw[double])
 
@@ -346,15 +344,13 @@ theorem modus_ponens (a b : Prop) :
     (a → b) → a → b :=
   assume hab : a → b
   assume ha : a
-  show b from
-    hab ha
+  hab ha
 
 theorem not_not_intro (a : Prop) :
     a → ¬¬ a :=
   assume ha : a
-  assume h!a : a → False
-  show False from
-    h!a ha
+  assume h!a : (a → False)
+  h!a ha
 
 theorem Forall.one_point {α : Type} (t : α) (P : α → Prop) :
     (∀ x, x = t → P x) ↔ P t :=
@@ -365,7 +361,7 @@ theorem Forall.one_point {α : Type} (t : α) (P : α → Prop) :
         apply hL t
         rfl)
     (assume hR : P t
-     show ∀ x, x = t → P x from
+     show ∀ x, x = t → P x
       by
         intro x hxt
         rw[hxt]
@@ -373,7 +369,7 @@ theorem Forall.one_point {α : Type} (t : α) (P : α → Prop) :
 
 theorem beast_666 (beast : ℕ) :
     (∀ n, n = 666 → beast ≥ n) ↔ beast ≥ 666 :=
-  Forall.one_point 666 (fun n : ℕ ↦ beast ≥ n)
+  Forall.one_point 666 (fun n ↦ beast ≥ n)
 
 theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
     (∃x : α, x = t ∧ P x) ↔ P t :=
@@ -382,11 +378,36 @@ theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
      show P t from
       Exists.elim hL
         (by
-          intro x hLL
-          rw[← (And.left hLL)]
+          intro a hLL
+          rw[← And.left hLL]
           exact And.right hLL))
     (assume hR : P t
      show ∃ x, x = t ∧ P x from
-      Exists.intro t (And.intro rfl hR))
+      Exists.intro t
+        (by
+          apply And.intro
+          · rfl
+          · exact hR))
+
+theorem two_mul_example_have (m n : ℕ) :
+    2 * m + n = m + n + m :=
+  have h1 : 2 * m + n = m + m + n :=
+    by
+      rw[Nat.two_mul]
+  have h2 : m + m + n = m + n + m :=
+    by
+      ac_rfl
+  Eq.trans h1 h2
+
+
+theorem two_mul_example (m n : ℕ) :
+    2 * m + n = m + n + m :=
+  calc
+    2 * m + n = m + m + n :=
+      by
+        rw[Nat.two_mul]
+    _ = m + n + m :=
+      by
+        ac_rfl
 
 end Forward

@@ -378,4 +378,25 @@ theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
       Exists.intro t
         (And.intro rfl hR)
       )
+
+theorem two_mul_example_have (m n : ℕ) :
+    2 * m + n = m + n + m :=
+    have h1 : 2 * m + n = m + m + n :=
+      by
+        rw[Nat.two_mul]
+    have h2 : m + m + n = m + n + m :=
+      by
+        ac_rfl
+    Eq.trans h1 h2
+
+
+theorem two_mul_example (m n : ℕ) :
+    2 * m + n = m + n + m :=
+  calc
+    2 * m + n = (m + m) + n :=
+      by rw[Nat.two_mul]
+    _ = m + n + m :=
+      by ac_rfl
+
+
 end Forward
