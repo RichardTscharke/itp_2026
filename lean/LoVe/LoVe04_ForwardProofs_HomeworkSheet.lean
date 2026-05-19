@@ -39,14 +39,26 @@ Hint: There is an easy way. -/
 
 theorem about_Impl_term :
     ∀a b : Prop, ¬ a ∨ b → a → b :=
-  sorry
+  fun a ↦ (fun b ↦
+    (fun h!ab ↦ (fun ha ↦
+      (Or.elim h!ab
+        (fun h!a ↦ False.elim (h!a ha))
+        (fun hb ↦ hb) : b))))
 
 /- 1.2. Prove the same theorem again, this time by providing a
 structured proof, with `fix`, `assume`, and `show`. -/
 
 theorem about_Impl_struct :
     ∀a b : Prop, ¬ a ∨ b → a → b :=
-  sorry
+  fix a b : Prop
+  assume h!ab : ¬ a ∨ b
+  assume ha : a
+  show b from
+    Or.elim h!ab
+      (assume h!a : a → False
+       False.elim (h!a ha))
+      (assume hb : b
+       hb)
 
 
 /- ## Question 2: More Logic Puzzles
@@ -72,7 +84,7 @@ Hint: There is an easy way. -/
 
 theorem weak_peirce_term :
     ∀a b : Prop, ((((a → b) → a) → a) → b) → b :=
-  sorry
+  weak_peirce
 
 /- 2.2. Prove the same theorem again, this time by providing a structured
 proof, with `fix`, `assume`, and `show`. -/
@@ -80,6 +92,7 @@ proof, with `fix`, `assume`, and `show`. -/
 theorem weak_peirce_struct :
     ∀a b : Prop, ((((a → b) → a) → a) → b) → b :=
   sorry
+
 
 
 /- ## Question 3: Connectives and Quantifiers
