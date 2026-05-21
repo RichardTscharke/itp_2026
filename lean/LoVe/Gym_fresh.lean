@@ -348,3 +348,51 @@ theorem reverse_reverse_pm {α : Type} :
 -/
 
 end Forward
+
+namespace Functional
+
+/-
+Give the base and induction case for each goal
+
+1. n : ℕ ⊢ P[n]
+
+->
+->
+-----------------------------------
+2. hQ : Q, n : ℕ, hR : R[n] ⊢ S[n]
+
+->
+->
+-----------------------------------
+3. xs : List α ⊢ P[xs]
+
+->
+->
+-/
+
+theorem succ_neq_self (n : ℕ) :
+    Nat.succ n ≠ n :=
+  by
+    sorry
+
+-- Define a function that counts the number of elements in a list for which p holds. Use pattern matching at the top and second level (match-with)
+
+
+-- Define a min-function using if-then-else
+
+
+-- Define a sructure for RGB
+
+
+-- Define an extension with alpha values
+
+
+-- Define two pure green colors and extend one with an alpha value
+
+
+
+
+-- Define a shuffle function which rotates all values of a RGB to the left
+
+
+-- Proof that shuffeling three times neutralizes itself

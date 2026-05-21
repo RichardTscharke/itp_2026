@@ -429,3 +429,82 @@ theorem reverse_reverse_pm {α : Type} :
   | x :: xs   => by simp[reverse, reverse_append_pm, reverse_reverse_pm xs]
 
 end Forward
+
+namespace Functional
+
+/-
+Give the base and induction case for each goal
+
+1. n : ℕ ⊢ P[n]
+
+-> ⊢ P[0]
+-> k : ℕ, ih : P[k] ⊢ P[k+1]
+-----------------------------------
+2. hQ : Q, n : ℕ, hR : R[n] ⊢ S[n]
+
+-> hQ, Q, hR : R[0] ⊢ S[0]
+-> hQ : Q, k : ℕ, ih : R[k] → S[k], hR : R[k + 1] ⊢ S[k+1]
+-----------------------------------
+3. xs : List α ⊢ P[xs]
+
+-> ⊢ P[[]]
+-> y : α, ys : List α, ih : P[ys] ⊢ P[y :: ys]
+-/
+
+theorem succ_neq_self (n : ℕ) :
+    Nat.succ n ≠ n :=
+  by
+    induction n with
+    | zero        => simp
+    | succ n' ih  =>
+      intro hsucc
+      apply ih
+      apply Nat.succ.inj hsucc
+
+-- Define a function that counts the number of elements in a list for which p holds. Use pattern matching at the top and second level (match-with)
+def bcount {α : Type} (p : α → Bool) : List α → ℕ
+  | []        => 0
+  | x :: xs   =>
+    match p x with
+      | false => 0 + bcount p xs
+      | true  => 1 + bcount p xs
+
+-- Define a min-function using if-then-else
+def min (a b : ℕ) : ℕ :=
+  if a ≤ b then a else b
+
+-- Define a sructure for RGB
+structure RGB where
+  red   : ℕ
+  green : ℕ
+  blue  : ℕ
+
+-- Define an extension with alpha values
+structure RGBA extends RGB where
+  alpha : ℕ
+
+-- Define two pure green colors and extend one with an alpha value
+def pureGreen : RGB :=
+  RGB.mk 0x00 0xff 0x00
+
+def pureGreen2 : RGB :=
+  {
+    red    := 0x00
+    green := 0xff
+    blue  := 0x00
+  }
+
+def pureGreenA : RGBA :=
+  { pureGreen with
+    alpha := 0xff }
+
+
+-- Define a shuffle function which rotates all values of a RGB to the left
+def shuffleRGB (c : RGB) : RGB :=
+  RGB.mk c.green c.blue c.red
+
+-- Proof that shuffeling three times neutralizes itself
+theorem three_shufflesRGB (c : RGB) :
+    shuffleRGB (shuffleRGB (shuffleRGB c)) = c :=
+  by
+    simp[shuffleRGB]
