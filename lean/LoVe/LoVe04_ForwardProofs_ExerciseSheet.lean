@@ -96,7 +96,12 @@ which can be used to pull a `∀` quantifier past an `∃` quantifier. -/
 
 theorem forall_exists_of_exists_forall {α : Type} (p : α → α → Prop) :
     (∃x, ∀y, p x y) → (∀y, ∃x, p x y) :=
-  sorry
+  assume hL : ∃x, ∀y, p x y
+  fix y : α
+  Exists.elim hL
+    (fix a : α
+     assume hLL : ∀ (y : α), p a y
+     Exists.intro a (hLL y))
 
 /- ## Question 2: Chain of Equalities
 
