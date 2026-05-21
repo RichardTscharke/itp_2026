@@ -35,7 +35,8 @@ theorem C (a b c : Prop) :
   assume habc : a → b → c
   assume hb : b
   assume ha : a
-  habc ha hb
+  show c from
+    habc ha hb
 
 theorem proj_fst (a : Prop) :
     a → a → a :=
@@ -75,27 +76,27 @@ theorem forall_and {α : Type} (p q : α → Prop) :
     (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
   Iff.intro
     (assume hL : ∀ x, p x ∧ q x
-     And.intro
-      (fix x : α
-       And.left (hL x))
-      (fix x : α
-       And.right (hL x))
-        )
+     show (∀x, p x) ∧ (∀x, q x) from
+      And.intro
+        (fix x : α
+         And.left (hL x))
+        (fix x : α
+         And.right (hL x))
+    )
     (assume hR : (∀x, p x) ∧ (∀x, q x)
-     fix x : α
-     And.intro
-      (And.left hR x)
-      (And.right hR x))
+     show ∀x, p x ∧ q x from
+      fix x : α
+      And.intro
+        (And.left hR x)
+        (And.right hR x)
+     )
 
 /- 1.4 (**optional**). Supply a structured proof of the following property,
 which can be used to pull a `∀` quantifier past an `∃` quantifier. -/
 
 theorem forall_exists_of_exists_forall {α : Type} (p : α → α → Prop) :
     (∃x, ∀y, p x y) → (∀y, ∃x, p x y) :=
-  assume hL : ∃x, ∀y, p x y
-  fix y : α
-
-
+  sorry
 
 /- ## Question 2: Chain of Equalities
 
@@ -113,7 +114,16 @@ Hint: This is a difficult question. You might need the tactics `simp` and
 
 theorem binomial_square (a b : ℕ) :
     (a + b) * (a + b) = a * a + 2 * a * b + b * b :=
-  sorry
+  calc
+    (a + b) * (a + b) = a * (a + b) + b * (a + b) :=
+      by simp[mul_add, add_mul]; ac_rfl
+    _ = a * a + a * b + b * a + b * b :=
+      by simp[mul_add]; ac_rfl
+    _ = a * a + a * b + a * b + b * b :=
+      by ac_rfl
+    _ = a * a + 2 * a * b + b * b :=
+      by simp[Nat.two_mul, add_mul]; ac_rfl
+
 
 /- 2.2 (**optional**). Prove the same argument again, this time as a structured
 proof, with `have` steps corresponding to the `calc` equations. Try to reuse as
@@ -121,7 +131,15 @@ much of the above proof idea as possible, proceeding mechanically. -/
 
 theorem binomial_square₂ (a b : ℕ) :
     (a + b) * (a + b) = a * a + 2 * a * b + b * b :=
-  sorry
+  have h1 : (a + b) * (a + b) = a * (a + b) + b * (a + b) :=
+    by simp[mul_add, add_mul]; ac_rfl
+  have h2 : a * (a + b) + b * (a + b) = a * a + a * b + b * a + b * b :=
+    by simp[mul_add]; ac_rfl
+  have h3 : a * a + a * b + b * a + b * b = a * a + a * b + a * b + b * b :=
+    by ac_rfl
+  have h4 : a * a + a * b + a * b + b * b = a * a + 2 * a * b + b * b :=
+    by simp[Nat.two_mul, add_mul]; ac_rfl
+  Eq.trans (Eq.trans (Eq.trans h1 h2) h3) h4
 
 
 /- ## Question 3 (**optional**): One-Point Rules
@@ -135,6 +153,7 @@ axiom All.one_point_wrong {α : Type} (t : α) (P : α → Prop) :
 theorem All.proof_of_False :
     False :=
   sorry
+
 
 /- 3.2 (**optional**). Prove that the following wrong formulation of the
 one-point rule for `∃` is inconsistent, using a structured proof. -/
