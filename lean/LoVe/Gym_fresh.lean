@@ -370,18 +370,19 @@ Give the base and induction case for each goal
 ->
 -/
 
+-- Nat.succ.inj
 theorem succ_neq_self (n : ℕ) :
     Nat.succ n ≠ n :=
   by
     sorry
 
--- Define a function that counts the number of elements in a list for which p holds. Use pattern matching at the top and second level (match-with)
-
+-- Define a function that counts the number of elements in a list for which p holds.
+-- Use pattern matching at the top and second level (match-with)
 
 -- Define a min-function using if-then-else
 
 
--- Define a sructure for RGB
+-- Define a structure for RGB
 
 
 -- Define an extension with alpha values
@@ -396,3 +397,141 @@ theorem succ_neq_self (n : ℕ) :
 
 
 -- Proof that shuffeling three times neutralizes itself
+
+
+-- Define a type class Inhabited which allows a default value for a type
+
+
+-- Create an instance of Inhabited for ℕ
+
+
+-- Create an instance of Inhabited for Lists
+
+
+-- Create '' for Tupels (types of both elements must be instances)
+
+
+-- Define a function that returns the head of a list or the default value for an empty list
+
+
+-- Prove the theorem that the head of the nested head of a list is the same as the head
+
+-- Define the two semantic type classes for associativity and commutativity for binary operators
+
+
+-- Make add on ℕ instance of those two type classes
+
+
+
+-- Repeat the head_head theorem, this time with a case distinction
+/-
+theorem head_head_case {α : Type} [Inhabited α] (xs : List α) :
+    head [head xs] = head xs :=
+  sorry
+
+
+-- alternative for structured proofs
+theorem head_head_structured {α : Type} [Inhabited α] (xs : List α) :
+    head [head xs] = head xs :=
+  match xs with
+  | []          => by rfl
+  | (x :: xs)   => by rfl
+-/
+
+-- use a new-learned tactic which abuses the injectivity of constructors
+theorem injection_example {α : Type} (x y : α) (xs ys : List α) (h :  x :: xs = y :: ys) :
+    x = y ∧ xs = ys :=
+  sorry
+
+theorem distinctness_example {α : Type} (y : α) (ys : List α) (h : [] = y :: ys) :
+    False :=
+  sorry
+
+-- define a map function for lists
+
+/-
+theorem map_ident {α : Type} (xs : List α) :
+    map (fun x ↦ x) xs = xs :=
+  sorry
+
+theorem map_succ {α β γ : Type} (f : α → β) (g : β → γ) (xs : List α) :
+    map g (map f xs) = map (fun x ↦ g (f x)) xs :=
+  sorry
+
+theorem map_append {α β : Type} (f : α → β) (xs ys : List α) :
+    map f (xs ++ ys) = map f xs ++ (map f ys) :=
+  sorry
+-/
+
+-- define a tail function for lists
+
+
+-- define a function head that ensures the call does not happen on []
+
+
+-- define a zip function
+
+
+-- define a length function
+
+
+
+/-
+theorem min_add_add (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  by
+    cases Classical.em (m ≤ n) with
+    | inl h => simp [min, h]
+    | inr h => simp [min, h]
+
+theorem min_add_add_match (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  match Classical.em (m ≤ n) with
+  | Or.inl h => by simp [min, h]
+  | Or.inr h => by simp [min, h]
+
+theorem min_add_add_if (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  if h : m ≤ n then
+    by simp [min, h]
+  else
+    by simp [min, h]
+
+theorem length_zip {α β : Type} (xs : List α) (ys : List β) :
+    length (zip xs ys) = min (length xs) (length ys) :=
+  by
+    induction xs generalizing ys with
+    | nil           => simp [zip, min, length]
+    | cons x xs' ih =>
+      cases ys with
+      | nil        => rfl
+      | cons y ys' => simp [zip, length, ih ys', min_add_add]
+
+theorem map_zip {α α' β β' : Type} (f : α → α')
+      (g : β → β') :
+    ∀xs ys,
+      map (fun ab : α × β ↦
+          (f (Prod.fst ab), g (Prod.snd ab)))
+        (zip xs ys) =
+      zip (map f xs) (map g ys)
+  | x :: xs, y :: ys => by simp [zip, map, map_zip f g xs ys]
+  | [],      _       => by rfl
+  | _ :: _,  []      => by rfl
+-/
+
+-- define a binary tree object
+
+
+-- define a mirror function for trees
+
+/-
+theorem mirror_mirror {α : Type} (t : Tree α) :
+    mirror (mirror t) = t :=
+  sorry
+
+theorem mirror_Eq_nil_Iff {α : Type} :
+    ∀ t : Tree α, mirror t = Tree.nil ↔ t = Tree.nil
+  sorry
+-/
+
+end Functional

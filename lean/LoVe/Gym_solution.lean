@@ -443,7 +443,7 @@ Give the base and induction case for each goal
 2. hQ : Q, n : ℕ, hR : R[n] ⊢ S[n]
 
 -> hQ, Q, hR : R[0] ⊢ S[0]
--> hQ : Q, k : ℕ, ih : R[k] → S[k], hR : R[k + 1] ⊢ S[k+1]
+-> hQ : Q, k : ℕ, ih : R[k] → S[k], hR : R[k+1] ⊢ S[k+1]
 -----------------------------------
 3. xs : List α ⊢ P[xs]
 
@@ -473,7 +473,7 @@ def bcount {α : Type} (p : α → Bool) : List α → ℕ
 def min (a b : ℕ) : ℕ :=
   if a ≤ b then a else b
 
--- Define a sructure for RGB
+-- Define a structure for RGB
 structure RGB where
   red   : ℕ
   green : ℕ
@@ -508,3 +508,191 @@ theorem three_shufflesRGB (c : RGB) :
     shuffleRGB (shuffleRGB (shuffleRGB c)) = c :=
   by
     simp[shuffleRGB]
+
+
+-- Define a type class Inhabited which allows a default value for a type
+class Inhabited (α : Type) : Type where
+  default : α
+
+-- Create an instance of Inhabited for ℕ
+instance Nat.Inhabited : Inhabited ℕ :=
+  { default := 0  }
+
+-- Create an instance of Inhabited for Lists
+instance List.Inhabited {α : Type} : Inhabited (List α) :=
+  { default := [] }
+
+-- Create '' for Tupels (types of both elements must be instances)
+instance Prod.Inhabited {α β : Type} [Inhabited α] [Inhabited β] : Inhabited (α × β) :=
+  { default := (Inhabited.default, Inhabited.default) }
+
+-- Define a function that returns the head of a list or the default value for an empty list
+def head {α : Type} [Inhabited α] : List α → α
+  | []      => Inhabited.default
+  | x :: _  => x
+
+-- Prove the theorem that the head of the nested head of a list is the same as the head
+theorem head_head {α : Type} [Inhabited α] (xs : List α) :
+    head [head xs] = head xs :=
+  by
+    simp[head]
+
+-- Define the two semantic type classes for associativity and commutativity for binary operators
+class Std.Associative (α : Type) (f : α → α → α) where
+  assoc : ∀ a b c : α, f (f a b) c = f a (f b c)
+
+class Std.Commutative (α : Type) (f : α → α → α) where
+  comm : ∀ a b : α, f a b = f b a
+
+-- Make add on ℕ instance of those two type classes
+instance Associative_add : Std.Associative ℕ Nat.add :=
+  { assoc := add_assoc  }
+
+instance Commutative_add : Std.Commutative ℕ Nat.add :=
+  { comm := add_comm  }
+
+-- Repeat the head_head theorem, this time with a case distinction
+theorem head_head_case {α : Type} [Inhabited α] (xs : List α) :
+    head [head xs] = head xs :=
+  by
+    cases xs with
+    | nil         => rfl
+    | cons x xs   => rfl
+
+-- alternative for structured proofs
+theorem head_head_structured {α : Type} [Inhabited α] (xs : List α) :
+    head [head xs] = head xs :=
+  match xs with
+  | []          => by rfl
+  | (x :: xs)   => by rfl
+
+-- use a new-learned tactic which abuses the injectivity of constructors
+theorem injection_example {α : Type} (x y : α) (xs ys : List α) (h :  x :: xs = y :: ys) :
+    x = y ∧ xs = ys :=
+  by
+    cases h
+    simp
+
+theorem distinctness_example {α : Type} (y : α) (ys : List α) (h : [] = y :: ys) :
+    False :=
+  by
+    cases h
+
+-- define a map function for lists
+def map {α β : Type} (f : α → β) : List α → List β
+  | []        => []
+  | x :: xs   => f x :: (map f xs)
+
+theorem map_ident {α : Type} (xs : List α) :
+    map (fun x ↦ x) xs = xs :=
+  by
+    induction xs with
+    | nil             => rw[map]
+    | cons x xs' ih   => rw[map, ih]
+
+theorem map_succ {α β γ : Type} (f : α → β) (g : β → γ) (xs : List α) :
+    map g (map f xs) = map (fun x ↦ g (f x)) xs :=
+  by
+    induction xs with
+    | nil              => simp[map]
+    | cons x xs' ih    => simp[map,ih]
+
+theorem map_append {α β : Type} (f : α → β) (xs ys : List α) :
+    map f (xs ++ ys) = map f xs ++ (map f ys) :=
+  by
+    induction xs with
+    | nil             => simp[map]
+    | cons x xs' ih   => simp[map, ih]
+
+-- define a tail function for lists
+def tail {α : Type} : List α → List α
+  | []        => []
+  | _ :: xs   => xs
+
+-- define a function head that ensures the call does not happen on []
+def headSafe {α : Type} : (xs : List α) → xs ≠ [] → α
+  | [],      h  => by
+                    apply False.elim
+                    apply h
+                    rfl
+  | x :: xs, h  => x
+
+-- define a zip function
+def zip {α β : Type} : List α → List β → List (α × β)
+  | [], _             => []
+  | _, []             => []
+  | x :: xs, y :: ys  => (x, y) :: zip xs ys
+
+-- define a length function
+def length {α : Type} : List α → ℕ
+  | []        => 0
+  | _ :: xs   => 1 + (length xs)
+
+
+/-
+theorem min_add_add (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  by
+    cases Classical.em (m ≤ n) with
+    | inl h => simp [min, h]
+    | inr h => simp [min, h]
+
+theorem min_add_add_match (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  match Classical.em (m ≤ n) with
+  | Or.inl h => by simp [min, h]
+  | Or.inr h => by simp [min, h]
+
+theorem min_add_add_if (l m n : ℕ) :
+    min (m + l) (n + l) = min m n + l :=
+  if h : m ≤ n then
+    by simp [min, h]
+  else
+    by simp [min, h]
+
+theorem length_zip {α β : Type} (xs : List α) (ys : List β) :
+    length (zip xs ys) = min (length xs) (length ys) :=
+  by
+    induction xs generalizing ys with
+    | nil           => simp [zip, min, length]
+    | cons x xs' ih =>
+      cases ys with
+      | nil        => rfl
+      | cons y ys' => simp [zip, length, ih ys', min_add_add]
+
+theorem map_zip {α α' β β' : Type} (f : α → α')
+      (g : β → β') :
+    ∀xs ys,
+      map (fun ab : α × β ↦
+          (f (Prod.fst ab), g (Prod.snd ab)))
+        (zip xs ys) =
+      zip (map f xs) (map g ys)
+  | x :: xs, y :: ys => by simp [zip, map, map_zip f g xs ys]
+  | [],      _       => by rfl
+  | _ :: _,  []      => by rfl
+-/
+
+-- define a binary tree object
+inductive Tree (α : Type) : Type
+  | nil   : Tree α
+  | node  : α → Tree α → Tree α → Tree α
+
+-- define a mirror function for trees
+def mirror {α : Type} : Tree α → Tree α
+  | .nil         => .nil
+  | .node x l r  => .node x (mirror r) (mirror l)
+
+theorem mirror_mirror {α : Type} (t : Tree α) :
+    mirror (mirror t) = t :=
+  by
+    induction t with
+    | nil                   => simp[mirror]
+    | node x l r ih_l ih_r  => simp[mirror, ih_l, ih_r]
+
+theorem mirror_Eq_nil_Iff {α : Type} :
+    ∀ t : Tree α, mirror t = Tree.nil ↔ t = Tree.nil
+  | Tree.nil          => by simp[mirror]
+  | Tree.node x l r   => by simp[mirror]
+
+
+end Functional

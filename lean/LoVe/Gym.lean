@@ -391,23 +391,129 @@ theorem Exists.one_point {α : Type} (t : α) (P : α → Prop) :
 
 theorem two_mul_example_have (m n : ℕ) :
     2 * m + n = m + n + m :=
-  have h1 : 2 * m + n = m + m + n :=
-    by
-      rw[Nat.two_mul]
-  have h2 : m + m + n = m + n + m :=
-    by
-      ac_rfl
-  Eq.trans h1 h2
+    have h1 : 2 * m + n = m + m + n :=
+      by
+        rw[Nat.two_mul]
+    have h2 : m + m + n = m + n + m :=
+      by
+        ac_rfl
+    Eq.trans h1 h2
 
 
 theorem two_mul_example (m n : ℕ) :
     2 * m + n = m + n + m :=
   calc
-    2 * m + n = m + m + n :=
-      by
-        rw[Nat.two_mul]
+    2 * m + n = (m + m) + n :=
+      by rw[Nat.two_mul]
     _ = m + n + m :=
-      by
-        ac_rfl
+      by ac_rfl
+
+def reverse {α : Type} : List α → List α
+  | .nil    => .nil
+  | x :: xs => reverse xs ++ [x]
+
+theorem reverse_append_tac {α : Type} (xs ys : List α) :
+    reverse (xs ++ ys) = reverse ys ++ (reverse xs) :=
+  by
+    induction xs with
+    | nil             => simp[reverse]
+    | cons x xs' ih   => simp[reverse, ih]
+
+theorem reverse_reverse_tac {α : Type} (xs : List α) :
+    reverse (reverse xs) = xs :=
+  by
+    induction xs with
+    | nil           => simp[reverse]
+    | cons x xs ih  => simp[reverse, reverse_append_tac, ih]
+
+theorem reverse_append_pm {α : Type} :
+  ∀ xs ys : List α,
+    reverse (xs ++ ys) = reverse ys ++ (reverse xs)
+  | [],      ys   => by simp[reverse]
+  | x :: xs, ys   => by simp[reverse, reverse_append_pm xs]
+
+theorem reverse_reverse_pm {α : Type} :
+  ∀ xs : List α,
+      reverse (reverse xs) = xs
+  | []        => by simp[reverse]
+  | x :: xs   => by simp[reverse, reverse_append_pm, reverse_reverse_pm xs]
 
 end Forward
+
+namespace Functional
+
+/-
+Give the base and induction case for each goal
+
+1. n : ℕ ⊢ P[n]
+
+-> ⊢ P[0]
+-> k : ℕ, ih : P[k] ⊢ P[k+1]
+-----------------------------------
+2. hQ : Q, n : ℕ, hR : R[n] ⊢ S[n]
+
+-> hQ : Q, hR : R[0] ⊢ S [0]
+-> hQ : Q, k : ℕ, hR : R[k+1], ih : R[k] → S[k] ⊢ S[k+1]
+-----------------------------------
+3. xs : List α ⊢ P[xs]
+
+-> ⊢ P[[]]
+-> y : α, ys : List α, ih : P[ys] ⊢ P[y::ys]
+-/
+
+-- Nat.succ.inj
+theorem succ_neq_self (n : ℕ) :
+    Nat.succ n ≠ n :=
+  by
+    induction n with
+    | zero        => simp
+    | succ n' ih  => intro hsucc
+                     apply ih
+                     apply Nat.succ.inj hsucc
+
+-- Define a function that counts the number of elements in a list for which p holds.
+-- Use pattern matching at the top and second level (match-with)
+def countP {α : Type} (p : α → Bool) : List α → ℕ
+  | []         => 0
+  | (x :: xs)  => match p x with
+                    | false => countP p xs
+                    | true  => 1 + (countP p xs)
+
+-- Define a min-function using if-then-else
+def min (a b : ℕ) : ℕ :=
+  if a ≤ b then a else b
+
+-- Define a structure for RGB
+structure RGB where
+  red   : ℕ
+  green : ℕ
+  blue  : ℕ
+
+-- Define an extension with alpha values
+structure RGBA extends RGB where
+  alpha : ℕ
+
+-- Define two pure green colors and extend one with an alpha value
+def pureGreen : RGB :=
+  RGB.mk 0x00 0xff 0x00
+
+def pureGreen2 : RGB :=
+  { red   := 0x00
+    green := 0xff
+    blue  := 0x00  }
+
+def pureGA : RGBA :=
+  { pureGreen with
+    alpha := 1}
+
+-- Define a shuffle function which rotates all values of a RGB to the left
+def shuffleRGB (old : RGB) : RGB :=
+  RGB.mk (old.green) (old.blue) (old.red)
+
+-- Proof that shuffeling three times neutralizes itself
+theorem shuffleRGBthree (c : RGB) :
+    shuffleRGB (shuffleRGB (shuffleRGB c)) = c :=
+  by
+    simp[shuffleRGB]
+
+end Functional
