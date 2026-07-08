@@ -696,3 +696,62 @@ theorem mirror_Eq_nil_Iff {α : Type} :
 
 
 end Functional
+
+namespace InductivePredicates
+
+inductive Even : ℕ -> Prop where
+  | zero    : Even 0
+  | add_two : ∀n : ℕ, Even n -> Even (n+2)
+
+theorem even_4_tac :
+    Even 4 :=
+  by
+    apply Even.add_two
+    apply Even.add_two
+    apply Even.zero
+
+theorem even_4_struc :
+    Even 4 :=
+  have even_0 : Even 0 :=
+    Even.zero
+  have even_2 : Even 2 :=
+    Even.add_two 0 even_0
+  have even_4 : Even 4 :=
+    Even.add_two 2 even_2
+  even_4
+
+theorem mod_two_Eq_zero_of_Even (n : ℕ) (h : Even n) :
+    n % 2 = 0 :=
+  by
+    induction h with
+    | zero            => rfl
+    | add_two n h ih  => simp[ih]
+
+theorem Not_Even_two_mul_add_one (m n : ℕ)
+      (hm : m = 2 * n + 1) :
+    ¬ Even m :=
+  sorry
+
+
+inductive IsStuttering {α : Type} : List α -> Prop where
+  | nil                             : IsStuttering []
+  | cons_cons (x : α) {xs : List α} : IsStuttering xs -> IsStuttering (x :: x :: xs)
+
+theorem IsStuttering_map {α β : Type} (f : α -> β) {xs : List α} (hxs : IsStuttering xs) :
+    IsStuttering (List.map f xs) :=
+  sorry
+
+inductive isReverse {α : Type} : List α -> List α -> Prop where
+  | mt                                    : isReverse [] []
+  | cons_append (x : α) {xs ys : List α}  : isReverse xs ys -> isReverse (x :: xs) (ys ++ [x])
+
+
+inductive InList {α : Type} (x : α) : List α -> Prop where
+  | single : InList x [x]
+  | any_other (y : α) (xs : List α) : InList x xs -> InList x (y :: xs)
+
+
+
+
+
+end InductivePredicates

@@ -47,7 +47,7 @@ def nonsense1 : (γ → (α → β) → α) → γ → β → α :=
   fun f c b ↦ f c (fun a ↦ b)
 
 def nonsense2 : (α → α → β) → (β → γ) → α → β → γ :=
-  /- fun f g a b ↦ g b -/
+  --fun f g a b ↦ g b
   fun f g a b ↦ g (f a a)
 
 def nonsense3 : ((α → β) → γ → δ) → γ → β → δ :=
@@ -74,41 +74,11 @@ draw horizontal bars) and `⊢` useful.
 
 Feel free to introduce abbreviations to avoid repeating large contexts `C`. -/
 
-/-
-
-                                                                    -------------- VAR     ---------- VAR
-                                                                    C ⊢ g : γ → β          C ⊢ c : γ
-                                    -------------- VAR              -------------- APP     ---------- APP
-                                    C ⊢ f : α → β                                 C ⊢ g c : β
-                                    -------------- APP                            ------------- APP
-                                            f : α → β, g : γ → α, c : γ ⊢ f (g c) : β
-                                      ------------------------------------------------------ FUN
-                                      f : α → β, g : γ → α ⊢ fun (c : γ) ↦ f (g c)) : γ → β
-                                  ----------------------------------------------------------------- FUN
-                                  f : α → β ⊢ fun (g : γ → α) (c : γ) ↦ f (g c)) : (γ → α) → γ → β
-                              ------------------------------------------------------------------------------ FUN
-                              ⊢ (fun (f : α → β) (g : γ → α) (c : γ) ↦ f (g c)) : (α → β) → (γ → α) → γ → β
-
--/
+-- write your solution here
 
 /- 2.2. Show the typing derivation for your definition of `S` above, using
 ASCII or Unicode art. Start with an empty context. -/
 
-/-
-
-                     ----------------- VAR   ---------- VAR             ------------- VAR   ---------- VAR
-                     C ⊢ f : α → β → γ       C ⊢ a : α                  C ⊢ g : α → β       C ⊢ a : α
-                     ----------------- APP   ---------- APP             ------------- APP   ---------- APP
-                                 C ⊢ f a : β → γ                                   C ⊢ g a : β
-                                 ---------------- APP                              ------------ APP
-                                      f : α → β → γ, g : α → β, a : α ⊢ f a (g a) : γ
-                                      ------------------------------------------------------------- FUN
-                                      f : α → β → γ, g : α → β ⊢ (fun (a : α) ↦ f a (g a)) : α → γ
-                                ------------------------------------------------------------------------ FUN
-                                f : α → β → γ ⊢ (fun (g : α → β) (a : α) ↦ f a (g a)) : (α → β) → α → γ
-                            ---------------------------------------------------------------------------------------- FUN
-                            ⊢ (fun (f : α → β → γ) (g : α → β) (a : α) ↦ f a (g a)) : (α → β → γ) → (α → β) → α → γ
-
--/
+-- write your solution here
 
 end LoVe

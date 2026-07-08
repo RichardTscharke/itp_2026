@@ -21,87 +21,49 @@ namespace LoVe
 
 theorem I (a : Prop) :
     a → a :=
-  assume ha : a
-  ha
+  sorry
 
 theorem K (a b : Prop) :
     a → b → b :=
-  assume ha : a
-  assume hb : b
-  hb
+  sorry
 
 theorem C (a b c : Prop) :
     (a → b → c) → b → a → c :=
-  assume habc : a → b → c
-  assume hb : b
-  assume ha : a
-  show c from
-    habc ha hb
+  sorry
 
 theorem proj_fst (a : Prop) :
     a → a → a :=
-  assume ha : a
-  assume haa : a
-  ha
+  sorry
 
 /- Please give a different answer than for `proj_fst`. -/
 
 theorem proj_snd (a : Prop) :
     a → a → a :=
-  assume ha : a
-  assume haa : a
-  haa
+  sorry
 
 theorem some_nonsense (a b c : Prop) :
     (a → b → c) → a → (a → c) → b → c :=
-  assume habc : a → b → c
-  assume ha : a
-  assume hac : a → c
-  assume hb : b
-  -- hac ha
-  habc ha hb
+  sorry
 
 /- 1.2. Supply a structured proof of the contraposition rule. -/
 
 theorem contrapositive (a b : Prop) :
     (a → b) → ¬ b → ¬ a :=
-  assume hab : a → b
-  assume h!b : b → False
-  assume ha : a
-  h!b (hab ha)
+  sorry
 
 /- 1.3. Supply a structured proof of the distributivity of `∀` over `∧`. -/
 
 theorem forall_and {α : Type} (p q : α → Prop) :
     (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
-  Iff.intro
-    (assume hL : ∀ x, p x ∧ q x
-     show (∀x, p x) ∧ (∀x, q x) from
-      And.intro
-        (fix x : α
-         And.left (hL x))
-        (fix x : α
-         And.right (hL x))
-    )
-    (assume hR : (∀x, p x) ∧ (∀x, q x)
-     show ∀x, p x ∧ q x from
-      fix x : α
-      And.intro
-        (And.left hR x)
-        (And.right hR x)
-     )
+  sorry
 
 /- 1.4 (**optional**). Supply a structured proof of the following property,
 which can be used to pull a `∀` quantifier past an `∃` quantifier. -/
 
 theorem forall_exists_of_exists_forall {α : Type} (p : α → α → Prop) :
     (∃x, ∀y, p x y) → (∀y, ∃x, p x y) :=
-  assume hL : ∃x, ∀y, p x y
-  fix y : α
-  Exists.elim hL
-    (fix a : α
-     assume hLL : ∀ (y : α), p a y
-     Exists.intro a (hLL y))
+  sorry
+
 
 /- ## Question 2: Chain of Equalities
 
@@ -119,16 +81,7 @@ Hint: This is a difficult question. You might need the tactics `simp` and
 
 theorem binomial_square (a b : ℕ) :
     (a + b) * (a + b) = a * a + 2 * a * b + b * b :=
-  calc
-    (a + b) * (a + b) = a * (a + b) + b * (a + b) :=
-      by simp[mul_add, add_mul]; ac_rfl
-    _ = a * a + a * b + b * a + b * b :=
-      by simp[mul_add]; ac_rfl
-    _ = a * a + a * b + a * b + b * b :=
-      by ac_rfl
-    _ = a * a + 2 * a * b + b * b :=
-      by simp[Nat.two_mul, add_mul]; ac_rfl
-
+  sorry
 
 /- 2.2 (**optional**). Prove the same argument again, this time as a structured
 proof, with `have` steps corresponding to the `calc` equations. Try to reuse as
@@ -136,15 +89,7 @@ much of the above proof idea as possible, proceeding mechanically. -/
 
 theorem binomial_square₂ (a b : ℕ) :
     (a + b) * (a + b) = a * a + 2 * a * b + b * b :=
-  have h1 : (a + b) * (a + b) = a * (a + b) + b * (a + b) :=
-    by simp[mul_add, add_mul]; ac_rfl
-  have h2 : a * (a + b) + b * (a + b) = a * a + a * b + b * a + b * b :=
-    by simp[mul_add]; ac_rfl
-  have h3 : a * a + a * b + b * a + b * b = a * a + a * b + a * b + b * b :=
-    by ac_rfl
-  have h4 : a * a + a * b + a * b + b * b = a * a + 2 * a * b + b * b :=
-    by simp[Nat.two_mul, add_mul]; ac_rfl
-  Eq.trans (Eq.trans (Eq.trans h1 h2) h3) h4
+  sorry
 
 
 /- ## Question 3 (**optional**): One-Point Rules
@@ -158,7 +103,6 @@ axiom All.one_point_wrong {α : Type} (t : α) (P : α → Prop) :
 theorem All.proof_of_False :
     False :=
   sorry
-
 
 /- 3.2 (**optional**). Prove that the following wrong formulation of the
 one-point rule for `∃` is inconsistent, using a structured proof. -/

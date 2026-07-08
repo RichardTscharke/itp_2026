@@ -37,38 +37,35 @@ theorem K (a b : Prop) :
     a → b → b :=
   by
     intro ha hb
-    clear ha
     exact hb
 
 theorem C (a b c : Prop) :
     (a → b → c) → b → a → c :=
   by
     intro habc hb ha
-    apply habc
-    · exact ha
-    · exact hb
+    exact habc ha hb
 
 theorem proj_fst (a : Prop) :
     a → a → a :=
   by
-    intro ha haa
+    intro ha hb
     exact ha
+
 
 /- Please give a different answer than for `proj_fst`: -/
 
 theorem proj_snd (a : Prop) :
     a → a → a :=
   by
-    intro ha haa
-    exact haa
+    intro ha hb
+    exact hb
 
 theorem some_nonsense (a b c : Prop) :
     (a → b → c) → a → (a → c) → b → c :=
   by
     intro habc ha hac hb
-    clear habc hb
-    apply hac
-    exact ha
+    -- exact hac ha
+    exact habc ha hb
 
 /- 1.2. Prove the contraposition rule using basic tactics. -/
 
@@ -76,12 +73,7 @@ theorem contrapositive (a b : Prop) :
     (a → b) → ¬ b → ¬ a :=
   by
     intro hab h!b ha
-    apply False.elim
-    apply h!b
-    apply hab
-    exact ha
-
-
+    exact h!b (hab ha)
 
 /- 1.3. Prove the distributivity of `∀` over `∧` using basic tactics.
 
@@ -91,19 +83,34 @@ be necessary. -/
 
 theorem forall_and {α : Type} (p q : α → Prop) :
     (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
+  Iff.intro
+    (assume hL : ∀x, p x ∧ q x
+     And.intro
+      (fix x : α
+       And.left (hL x))
+      (fix x : α
+       And.right (hL x)))
+    (assume hR : (∀x, p x) ∧ (∀x, q x)
+     fix x : α
+     And.intro
+      (And.left hR x)
+      (And.right hR x))
+
+theorem forall_and_tac {α : Type} (p q : α → Prop) :
+    (∀x, p x ∧ q x) ↔ (∀x, p x) ∧ (∀x, q x) :=
   by
     apply Iff.intro
-    · intro hApq
+    · intro hL
       apply And.intro
       · intro x
-        exact And.left (hApq x)
+        exact And.left (hL x)
       · intro x
-        exact And.right (hApq x)
-    · intro hApAq x
+        exact And.right (hL x)
+    · intro hR
+      intro x
       apply And.intro
-      · exact And.left hApAq x
-      · exact And.right hApAq x
-
+      · exact And.left hR x
+      · exact And.right hR x
 
 /- ## Question 2: Natural Numbers
 
@@ -111,11 +118,6 @@ theorem forall_and {α : Type} (p q : α → Prop) :
 `mul` operator defined in lecture 1. -/
 
 #check mul
-/-
-def mul : Nat → Nat → Nat
-  | _, .zero    => .zero
-  | m, .succ n  => add m (mul m n)
--/
 
 theorem mul_zero (n : ℕ) :
     mul 0 n = 0 :=
@@ -130,24 +132,18 @@ theorem mul_succ (m n : ℕ) :
   by
     induction n with
     | zero        => rw[mul, mul, add]
-    | succ n' ih  => simp[mul, add, ih, add_succ, add_assoc]
+    | succ n' ih  => simp[mul, add, add_succ, ih, add_assoc]
 
 /- 2.2. Prove commutativity and associativity of multiplication using the
 `induction` tactic. Choose the induction variable carefully. -/
 
 theorem mul_comm (m n : ℕ) :
     mul m n = mul n m :=
-  by
-    induction n with
-    | zero        => rw[mul_zero, mul]
-    | succ n' ih  => rw[mul, mul_succ, ih, add_comm]
+  sorry
 
 theorem mul_assoc (l m n : ℕ) :
     mul (mul l m) n = mul l (mul m n) :=
-  by
-    induction n with
-    | zero        => simp[mul]
-    | succ n' ih  => simp[mul, mul_add, ih]
+  sorry
 
 /- 2.3. Prove the symmetric variant of `mul_add` using `rw`. To apply
 commutativity at a specific position, instantiate the rule by passing some
@@ -155,11 +151,7 @@ arguments (e.g., `mul_comm _ l`). -/
 
 theorem add_mul (l m n : ℕ) :
     add (mul n l) (mul n m) = mul (add l m) n :=
-  by
-    induction n with
-    | zero        => simp[mul, mul_zero]
-                     rfl
-    | succ n' ih  => rw[mul_comm (add l m) _, mul_add]
+  sorry
 
 
 /- ## Question 3 (**optional**): Intuitionistic Logic
@@ -200,8 +192,7 @@ theorem Peirce_of_EM :
       apply haba
       intro ha
       apply False.elim
-      apply h!a
-      apply ha
+      exact h!a ha
 
 
 /- 3.2 (**optional**). Prove the following implication using tactics. -/
@@ -210,12 +201,15 @@ theorem DN_of_Peirce :
     Peirce → DoubleNegation :=
   by
     rw[Peirce, DoubleNegation]
-    intro hP a h!!a
+    intro hP
+    intro a
+    intro h!!a
     apply hP a False
     intro h!a
     apply False.elim
-    apply h!!a
-    exact h!a
+    exact h!!a h!a
+
+
 
 /- We leave the remaining implication for the homework: -/
 
@@ -224,15 +218,7 @@ namespace SorryTheorems
 theorem EM_of_DN :
     DoubleNegation → ExcludedMiddle :=
   by
-    rw[DoubleNegation, ExcludedMiddle]
-    intro hDN a
-    apply hDN (a ∨ ¬ a)
-    intro h
-    apply h
-    apply Or.inr
-    intro ha
-    apply h
-    apply Or.inl ha
+    sorry
 
 
 end SorryTheorems

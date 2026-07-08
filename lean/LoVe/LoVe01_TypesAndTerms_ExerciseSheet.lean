@@ -45,8 +45,8 @@ def projSnd : α → α → α :=
   fun a b ↦ b
 
 def someNonsense : (α → β → γ) → α → (α → γ) → β → γ :=
-  /- fun f a g b ↦ g a -/
-  fun f a g b ↦ f a b
+  -- fun f a g b ↦ f a b
+  fun f a g b ↦ g a
 
 
 /- ## Question 2: Typing Derivation
@@ -55,19 +55,6 @@ Show the typing derivation for your definition of `C` above, on paper or using
 ASCII or Unicode art. Start with an empty context. You might find the
 characters `–` (to draw horizontal bars) and `⊢` useful. -/
 
-/-
-------------------------------------------- VAR  ------------------------------------ VAR
-f : α → β → γ, b : β, a : α ⊢ f : α → β → γ      f : α → β → γ, b : β, a : α ⊢ a : α
-------------------------------------------- APP  ------------------------------------ APP     ------------------------------------ VAR
-                      f : α → β → γ, b : β, a : α ⊢ f a : β → γ                               f : α → β → γ, b : β, a : α ⊢ b : β
-                      ------------------------------------------ APP                          ------------------------------------ APP
-                                                        f : α → β → γ, b : β, a : α ⊢ f a b : γ
-                                                ----------------------------------------------------- FUN
-                                                f : α → β → γ, b : β ⊢ (fun (a : α) ↦ f a b) : α → γ
-                                            ---------------------------------------------------------- FUN
-                                            f : α → β → γ ⊢ (fun (b : β) (a : α) ↦ f a b) : β → α → γ
-                                      -------------------------------------------------------------------------- FUN
-                                      ⊢ (fun (f : α → β → γ) (b : β) (a : α) ↦ f a b) : (α → β → γ) → β → α → γ
--/
+-- write your solution in a comment here or on paper
 
 end LoVe

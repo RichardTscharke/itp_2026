@@ -26,8 +26,8 @@ its argument, or 0 if the argument is 0. For example:
     `pred 0 = 0` -/
 
 def pred : ℕ → ℕ
-  | 0         => 0
-  | .succ n   => n
+  | 0           => 0
+  | Nat.succ n  => n
 
 /- 1.2. Check that your function works as expected. -/
 
@@ -62,10 +62,14 @@ function on `AExp`) are unrelated. -/
 def someEnv : String → ℤ
   | "x" => 3
   | "y" => 17
+  | "123" => 123
   | _   => 201
 
 #eval eval someEnv (AExp.var "x")   -- expected: 3
 -- invoke `#eval` here
+#eval eval someEnv (AExp.num 3)
+#eval eval someEnv (AExp.div (AExp.var "y") (AExp.num 0))
+#eval eval someEnv (AExp.sub (AExp.var "123") (AExp.add (AExp.num 1) (AExp.num 123)))
 
 /- 2.2. The following function simplifies arithmetic expressions involving
 addition. It simplifies `0 + e` and `e + 0` to `e`. Complete the definition so
@@ -75,14 +79,16 @@ operators. -/
 def simplify : AExp → AExp
   | AExp.add (AExp.num 0) e₂ => simplify e₂
   | AExp.add e₁ (AExp.num 0) => simplify e₁
+  -- insert the missing cases here
   | AExp.sub e₁ (AExp.num 0) => simplify e₁
-  | AExp.mul e₁ (AExp.num 1) => simplify e₁
-  | AExp.mul (AExp.num 1) e₂ => simplify e₂
-  | AExp.mul e₁ (AExp.num 0) => AExp.num 0
   | AExp.mul (AExp.num 0) e₂ => AExp.num 0
-  | AExp.div e₁ (AExp.num 0) => AExp.num 0
+  | AExp.mul e₁ (AExp.num 0) => AExp.num 0
+  | AExp.mul (AExp.num 1) e₂ => simplify e₂
+  | AExp.mul e₁ (AExp.num 1) => simplify e₁
   | AExp.div (AExp.num 0) e₂ => AExp.num 0
-  | AExp.div e₁ (AExp.num 1) => e₁
+  | AExp.div e₁ (AExp.num 0) => AExp.num 0
+  | AExp.div e₁ (AExp.num 1) => simplify e₁
+  -- catch-all cases below
   | AExp.num i               => AExp.num i
   | AExp.var x               => AExp.var x
   | AExp.add e₁ e₂           => AExp.add (simplify e₁) (simplify e₂)
@@ -100,7 +106,7 @@ the property that the value of `e` after simplification is the same as the
 value of `e` before. -/
 
 theorem simplify_correct (env : String → ℤ) (e : AExp) :
-    eval env (simplify e) = eval env e :=
+    eval env (simplify e) = eval env e :=  -- replace `True` by your theorem statement
   sorry   -- leave `sorry` alone
 
 
@@ -110,8 +116,8 @@ theorem simplify_correct (env : String → ℤ) (e : AExp) :
 every element in a list. -/
 
 def map {α : Type} {β : Type} (f : α → β) : List α → List β
-  | []          => []
-  | (x :: xs)   => (f x) :: (map f xs)
+  | []      => []
+  | x :: xs => f x :: map f xs
 
 #eval map (fun n ↦ n + 10) [1, 2, 3]   -- expected: [11, 12, 13]
 
@@ -124,12 +130,12 @@ properties of `map` as theorems. Schematically:
 Try to give meaningful names to your theorems. Also, make sure to state the
 second property as generally as possible, for arbitrary types. -/
 
-theorem id_map {α : Type} (xs : List α) :
+-- enter your theorem statements here
+theorem map_ident {α : Type} (xs : List α) :
     map (fun x ↦ x) xs = xs :=
   sorry
 
-theorem comp_map {α β γ : Type} (f : α → β) (g : β → γ) (xs : List α) :
+theorem map_con {α β γ : Type} (f : α -> β) (g : β -> γ) (xs : List α) :
     map (fun x ↦ g (f x)) xs = map g (map f xs) :=
   sorry
-
 end LoVe

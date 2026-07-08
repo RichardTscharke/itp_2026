@@ -25,14 +25,15 @@ list. Your function should be defined by recursion and not using `++`
 
 def snoc {α : Type} : List α → α → List α
   | [], x         => [x]
-  | (x :: xs), y  => x :: (snoc xs y)
+  | (x :: xs), y  => x :: snoc xs y
 
 /- 1.2. Convince yourself that your definition of `snoc` works by testing it on
 a few examples. -/
 
 #eval snoc [1] 2
-#eval snoc [3, 2, 1] 0
-#eval snoc [[1, 2], [3]] []
+-- invoke `#eval` or `#reduce` here
+#reduce snoc ["h", "e"] "y"
+#reduce snoc [] 4
 
 
 /- ## Question 2: Minus 2
@@ -50,9 +51,9 @@ def minusTwo : ℕ → ℕ
 it on a few examples. -/
 
 #eval minusTwo 0   -- expected: 0
-#eval minusTwo 1
-#eval minusTwo 2
-#eval minusTwo 3
+-- invoke `#eval` or `#reduce` here
+#eval minusTwo 5
+#reduce minusTwo 5
 
 
 /- ## Question 3: Sum
@@ -61,8 +62,8 @@ it on a few examples. -/
 list. -/
 
 def sum : List ℕ → ℕ
-  | []        => 0
-  | x :: xs   => x + sum xs
+  | []      => 0
+  |x :: xs  => x + sum xs
 
 #eval sum [1, 12, 3]   -- expected: 16
 
@@ -75,6 +76,7 @@ theorems. Schematically:
 
 Try to give meaningful names to your theorems. Use `sorry` as the proof. -/
 
+-- enter your theorem statements here
 theorem sum_snoc (ms : List ℕ) (n : ℕ) :
     sum (snoc ms n) = n + sum ms :=
   sorry
@@ -111,6 +113,7 @@ type inference. -/
 #eval reverse ([] : List ℕ)   -- expected: []
 #eval reverse [1, 3, 5]       -- expected: [5, 3, 1]
 -- invoke `#eval` here
+#eval reverse ["h", "e", "y"]
 
 /- 4.2. State (without proving them) the following properties of
 `append` and `reverse`. Schematically:
@@ -124,11 +127,12 @@ Hint: Take a look at `reverse_reverse` from the demonstration file. -/
 
 #check SorryTheorems.reverse_reverse
 
+-- enter your theorem statements here
 theorem append_assoc {α : Type} (xs ys zs : List α) :
     append _ (append _ xs ys) zs = append _ xs (append _ ys zs) :=
   sorry
 
-theorem rev_app_dis {α : Type} (xs ys : List α) :
+theorem reverse_append {α : Type} (xs ys : List α) :
     reverse (append _ xs ys) = append _ (reverse ys) (reverse xs) :=
   sorry
 

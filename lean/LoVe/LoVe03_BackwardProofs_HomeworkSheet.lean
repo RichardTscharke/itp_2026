@@ -31,24 +31,19 @@ theorem B (a b c : Prop) :
     (a → b) → (c → a) → c → b :=
   by
     intro hab hca hc
-    apply hab
-    apply hca
-    exact hc
+    exact hab (hca hc)
 
 theorem S (a b c : Prop) :
     (a → b → c) → (a → b) → a → c :=
   by
     intro habc hab ha
-    apply habc
-    · exact ha
-    · apply hab
-      exact ha
+    exact habc ha (hab ha)
 
 theorem nonsense1 (a b c d : Prop) :
     ((a → b) → c → d) → c → b → d :=
   by
-    intro h hc hb
-    apply h
+    intro habcd hc hb
+    apply habcd
     · intro ha
       exact hb
     · exact hc
@@ -57,26 +52,26 @@ theorem nonsense2 (a b c : Prop) :
     (a → b) → (a → c) → a → b → c :=
   by
     intro hab hac ha hb
-    clear hab hb
     apply hac
     exact ha
 
 theorem nonsense3 (a b c : Prop) :
     (c → (a → b) → a) → c → b → a :=
   by
-    intro h hc hb
-    apply h
-    · assumption
+    intro hcaba hc hb
+    apply hcaba
+    · exact hc
     · intro ha
-      assumption
+      exact hb
 
 theorem nonsense4 (a b c : Prop) :
     (a → a → b) → (b → c) → a → b → c :=
   by
     intro haab hbc ha hb
-    clear haab ha
     apply hbc
-    apply hb
+    apply haab
+    · exact ha
+    · exact ha
 
 /- 1.2. Prove the following theorem using basic tactics. -/
 
@@ -108,13 +103,13 @@ Hints:
 theorem herman (a : Prop) :
     ¬¬ (¬¬ a → a) :=
   by
-    intro h!
-    apply h!
+    intro h1
+    apply h1
     intro h!!a
     apply False.elim
     apply h!!a
     intro ha
-    apply h!
+    apply h1
     intro h!!a
     exact ha
 
@@ -131,15 +126,15 @@ Hints:
 theorem about_Impl (a b : Prop) :
     ¬ a ∨ b → a → b :=
   by
-    intro h
+    intro h1
     intro ha
-    apply Or.elim h
+    apply Or.elim h1
     · intro h!a
       apply False.elim
-      apply h!a
-      exact ha
+      exact h!a ha
     · intro hb
       exact hb
+
 
 
 /- 2.3. Prove the missing link in our chain of classical axiom implications.
@@ -166,13 +161,14 @@ theorem EM_of_DN :
     DoubleNegation → ExcludedMiddle :=
   by
     rw[DoubleNegation, ExcludedMiddle]
-    intro hDN a
+    intro hDN
+    intro a
     apply hDN
-    intro h!
-    apply h!
+    intro h1
+    apply h1
     apply Or.inr
     intro ha
-    apply h!
+    apply h1
     apply Or.inl
     exact ha
 
@@ -185,30 +181,7 @@ missing implications, exploiting the three theorems we already have. -/
 #check DN_of_Peirce
 #check EM_of_DN
 
-theorem Peirce_of_DN :
-    DoubleNegation → Peirce :=
-  by
-    intro hDN
-    apply Peirce_of_EM
-    apply EM_of_DN
-    assumption
-
-theorem DN_of_EM :
-    ExcludedMiddle → DoubleNegation :=
-  by
-    intro hEM
-    apply DN_of_Peirce
-    apply Peirce_of_EM
-    exact hEM
-
-theorem EM_of_Pierce :
-    Peirce → ExcludedMiddle :=
-  by
-    intro hP
-    apply EM_of_DN
-    apply DN_of_Peirce
-    exact hP
-
+-- enter your solution here
 
 end BackwardProofs
 
