@@ -269,3 +269,21 @@ In contrast to (List α) or (Tree α), inductive types may also depend on (non-t
 inductive Vec (α : Type) : ℕ -> Type where
   | nil                                : Vec α 0
   | cons (a : α) {n : ℕ} (v : Vec α n) : Vec α (n+1)
+
+
+def filter {α : Type} (p : α → Bool) : List α → List α
+  | [] => []
+  | a :: as =>
+            match p a with
+            | true => a :: filter p as
+            | false => filter p as
+
+theorem filter_true {α : Type} (xs : List α) :
+    filter (fun _ ↦ true) xs = xs :=
+  by
+    induction xs with
+    | nil             => simp[filter]
+    | cons x xs' ih   => simp[filter, ih]
+
+
+end Functional
